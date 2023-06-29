@@ -1,21 +1,25 @@
 import pkg from '@apollo/client';
-const { ApolloClient, InMemoryCache, gql } = pkg;  
 import fs from 'fs';
-
+import moment from 'moment';
+const { ApolloClient, InMemoryCache, gql } = pkg;  
 
 const APIURL = 'https://api.studio.thegraph.com/query/49058/4337entrypoint/v0.0.1'
 const tokensQuery = 
     `
-    query {
+    query (
+      $first: Int, 
+      $orderBy: BigInt, 
+      $orderDirection: String){
       accountDeployeds(
-        first: 2
-        orderBy: blockTimestamp
-        orderDirection: desc
+        first: $first, 
+        orderBy: $orderBy, 
+        orderDirection: $orderDirection
       ) {
-        userOpHash
         sender
+        paymaster
         factory
         paymaster
+        userOpHash
         blockNumber
         blockTimestamp
         transactionHash
@@ -28,14 +32,30 @@ const client = new ApolloClient({
 
 client.query({ 
        query: gql(tokensQuery),  
+       variables: {
+        first: 5,
+        orderBy: 'blockTimestamp',
+        orderDirection: 'desc'
+      }
 }).then(
     (data) => {
-      const dataString = data.data.accountDeployeds 
-      const accountDeployeds = JSON.stringify(dataString, null, 2);
-      fs.writeFile('./uitils/output2.json', accountDeployeds, (err) => {
+      const accountDeployeds = data.data.accountDeployeds.map((deployed) => {
+        const UTCtime = moment.utc(deployed.blockTimestamp * 1000).utcOffset(480).format('YYYY-MM-DD HH:mm:ss');
+        const transactionUrl = `https://mumbai.polygonscan.com/tx/${deployed.transactionHash}`;
+        return {
+          ...deployed,
+          "dataAnalyzed":{
+            "UTC": UTCtime,
+            "transactionUrl" : transactionUrl
+          }
+          
+        };
+      });
+      const accountDeployedsString = JSON.stringify(accountDeployeds, null, 2);
+          fs.writeFile('./uitils/eventLog.json', accountDeployedsString, (err) => {
           if (err) throw err;
       });
-      console.log('Subgraph data: ', dataString)
+      console.log('Subgraph data: ', accountDeployedsString)
     }
     )  
     .catch((err) => {    
