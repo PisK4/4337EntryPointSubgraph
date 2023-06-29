@@ -27,7 +27,7 @@ axios.post('https://api.studio.thegraph.com/query/49058/4337entrypoint/v0.0.1',{
         dataArray.push(resultGet);
     }
     const data = JSON.stringify(dataArray, null, 2);
-    fs.appendFile('./scripts/output.json', data, (err) => {
+    fs.writeFile('./scripts/output.json', data, (err) => {
         if (err) throw err;
     });
 }).catch((error) => {
