@@ -1,0 +1,19 @@
+{
+  "name": "4337entrypoint",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ 4337entrypoint",
+    "create-local": "graph create --node http://localhost:8020/ 4337entrypoint",
+    "remove-local": "graph remove --node http://localhost:8020/ 4337entrypoint",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 4337entrypoint",
+    "test": "graph test"
+  },
+  "devDependencies": {
+    "@graphprotocol/graph-ts": "^0.31.0",
+    "axios": "^1.4.0",
+    "fs": "^0.0.1-security",
+    "matchstick-as": "0.5.0"
+  }
+}
